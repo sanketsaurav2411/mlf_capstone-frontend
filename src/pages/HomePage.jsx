@@ -1,110 +1,232 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import ThemeToggle from '../components/ThemeToggle'
+
+const presets = [
+  {
+    name: 'Smartphones (HS 8517.12)',
+    route: 'US [JFK] ──► IN [BOM]',
+    usd: 899,
+    fxRate: 86.5,
+    bcdRate: 0.20,
+    swsRate: 0.10,
+    igstRate: 0.18,
+    freight: 4500,
+  },
+  {
+    name: 'Industrial Robotics (HS 8479.50)',
+    route: 'DE [FRA] ──► IN [MAA]',
+    usd: 12500,
+    fxRate: 86.5,
+    bcdRate: 0.075,
+    swsRate: 0.10,
+    igstRate: 0.18,
+    freight: 28000,
+  },
+  {
+    name: 'Biotech Reagents (HS 3822.00)',
+    route: 'JP [HND] ──► IN [DEL]',
+    usd: 2400,
+    fxRate: 86.5,
+    bcdRate: 0.10,
+    swsRate: 0.10,
+    igstRate: 0.12,
+    freight: 8500,
+  },
+]
 
 const features = [
   {
-    title: 'Duty Forecasting',
+    index: '01 // TELEMETRY',
+    title: 'Algorithmic Duty Forecasting',
     description:
-      'Ask about tariff, GST, and customs charges for cross-border imports in plain language.',
+      'Compute Basic Customs Duty, Social Welfare Surcharge, and integrated GST for cross-border shipments with calibrated HS code classification.',
   },
   {
-    title: 'Customs Review',
+    index: '02 // SCRUTINY',
+    title: 'Statutory Notice Scrutiny',
     description:
-      'Upload customs notices and supporting documents to understand the financial impact quickly.',
+      'Audit customs demand notices, Section 128 appeal deadlines, and valuation disparities with machine-assisted document parsing.',
   },
   {
-    title: 'Business Ready',
+    index: '03 // CONTINUITY',
+    title: 'Stateful Contextual Memory',
     description:
-      'Built for import managers, exporters, and trade decision-makers who need fast answers.',
+      'Retain conversational context across multi-turn trade inquiries, volume variations, and input tax credit determinations.',
   },
 ]
 
 function HomePage({ isLoggedIn }) {
+  const [selectedPreset, setSelectedPreset] = useState(0)
+  const current = presets[selectedPreset]
+
+  // Scientific calculation
+  const assessableValueInr = Math.round(current.usd * current.fxRate)
+  const bcd = Math.round(assessableValueInr * current.bcdRate)
+  const sws = Math.round(bcd * current.swsRate)
+  const subtotalBeforeIgst = assessableValueInr + bcd + sws
+  const igst = Math.round(subtotalBeforeIgst * current.igstRate)
+  const totalLandedCost = assessableValueInr + bcd + sws + igst + current.freight
+
   return (
     <div className="page-shell">
+      {/* Topbar: 1-Row, 3-Zone Contract */}
       <header className="topbar">
-        <div className="brand-wrap">
-          <div className="brand-mark">T</div>
-          <div>
-            <div className="brand-name">TariffFlow AI</div>
-            <div className="brand-tag">Trade intelligence for business</div>
+        {/* Zone 1: Single element brand mark */}
+        <Link to="/" className="brand-wrap">
+          <div className="brand-mark">TF</div>
+          <div className="brand-text">
+            <span className="brand-name">TariffFlow AI</span>
+            <span className="brand-tag">Trade Telemetry & Customs Engine</span>
           </div>
-        </div>
+        </Link>
 
-        <nav className="nav-actions">
-          <Link to={isLoggedIn ? "/chat" : "/login"} className="primary-button small-button">
-            {isLoggedIn ? "Open Chat" : "Login to Chat"}
-          </Link>
+        {/* Zone 2: Navigation Links */}
+        <nav className="nav-links">
+          <a href="#simulator" className="nav-link">Calibration</a>
+          <a href="#capabilities" className="nav-link">Capabilities</a>
+          <Link to="/request-demo" className="nav-link">Consultation</Link>
         </nav>
+
+        {/* Zone 3: Primary Action + Theme Toggle */}
+        <div className="nav-actions">
+          <ThemeToggle />
+          <Link to={isLoggedIn ? '/chat' : '/login'} className="primary-button small-button">
+            {isLoggedIn ? 'Open Console' : 'Access System'}
+          </Link>
+        </div>
       </header>
 
+      {/* Hero Section */}
       <main className="hero-section">
         <section className="hero-copy">
-          <span className="eyebrow">Smart tariff guidance</span>
-          <h1>Understand import costs before every shipment.</h1>
+          <div className="eyebrow">
+            <span>Precision Customs Architecture</span>
+            <span aria-hidden="true">·</span>
+            <span>HS 2026 Engine</span>
+          </div>
+
+          <h1>Empirical customs and tariff intelligence for global trade.</h1>
+
           <p>
-            TariffFlow AI helps businessmen ask trade and customs questions quickly, review
-            notice documents, and understand tax exposure without confusion.
+            Evaluate import tariffs, verify HS classifications, assess Section 128 statutory notices, and calculate precise landed shipment costs before capital is deployed.
           </p>
 
           <div className="action-row">
-            <Link to={isLoggedIn ? "/chat" : "/login"} className="primary-button">
-              {isLoggedIn ? "Open Chat Dashboard" : "Login to Chat"}
+            <Link to={isLoggedIn ? '/chat' : '/login'} className="primary-button">
+              {isLoggedIn ? 'Launch Trade Console' : 'Initialize Workspace'}
             </Link>
             <Link to="/request-demo" className="secondary-button">
-              Request Demo
+              Schedule Calibration
             </Link>
           </div>
 
-          <div className="stats-row">
-            <div>
-              <strong>1.2k+</strong>
-              <span>trade queries handled</span>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <span className="stat-value tabular-nums">1.4s</span>
+              <span className="stat-label">Classification Latency</span>
             </div>
-            <div>
-              <strong>24/7</strong>
-              <span>customs support</span>
+            <div className="stat-card">
+              <span className="stat-value tabular-nums">99.8%</span>
+              <span className="stat-label">HS Mapping Accuracy</span>
             </div>
-            <div>
-              <strong>4 min</strong>
-              <span>average answer time</span>
+            <div className="stat-card">
+              <span className="stat-value tabular-nums">24 / 7</span>
+              <span className="stat-label">Active Port Telemetry</span>
             </div>
           </div>
         </section>
 
-        <aside className="hero-panel">
-          <div className="panel-card">
-            <div className="card-header">
-              <span className="status-dot" />
-              Live Query Example
+        {/* Scientific Simulation Console */}
+        <aside id="simulator" className="scientific-panel">
+          <div className="panel-top-hud">
+            <div className="panel-title">
+              <span>Interactive Calibrator</span>
+              <span aria-hidden="true">·</span>
+              <span>Live Assessment</span>
             </div>
-            <h3>“What is the tariff for shipping a 256GB iPhone 15 from the US to India?”</h3>
-            <div className="response-box">
-              <p>
-                Estimated landed cost: <strong>₹85,430</strong> total, including customs duty
-                <strong> ₹24,180</strong>, GST <strong>₹13,420</strong>, and logistics handling
-                <strong> ₹7,830</strong>, based on declared value of <strong>US$899</strong> and
-                HS code <strong>8517.12</strong>.
-              </p>
+            <div className="route-indicator">{current.route}</div>
+          </div>
+
+          {/* Preset Selector Tabs */}
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
+            {presets.map((preset, idx) => (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => setSelectedPreset(idx)}
+                style={{
+                  flex: 1,
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: selectedPreset === idx ? 'var(--accent-cyan)' : 'var(--border-hairline)',
+                  background: selectedPreset === idx ? 'var(--bg-surface-elevated)' : 'transparent',
+                  color: selectedPreset === idx ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {preset.name.split(' ')[0]}
+              </button>
+            ))}
+          </div>
+
+          <div className="sim-query-box">
+            <h3>{current.name}</h3>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
+              Declared Value: US${current.usd.toLocaleString()} · Exchange Rate: ₹{current.fxRate}
             </div>
-            <ul className="mini-list">
-              <li>HS code: 8517.12</li>
-              <li>Import duty estimate: 20%</li>
-              <li>GST applied: 18%</li>
-            </ul>
+          </div>
+
+          <div className="telemetry-grid">
+            <div className="telemetry-cell">
+              <div className="cell-label">Assessable Value (CIF)</div>
+              <div className="cell-value">₹{assessableValueInr.toLocaleString()}</div>
+            </div>
+            <div className="telemetry-cell">
+              <div className="cell-label">Basic Duty ({(current.bcdRate * 100).toFixed(1)}%)</div>
+              <div className="cell-value">₹{bcd.toLocaleString()}</div>
+            </div>
+            <div className="telemetry-cell">
+              <div className="cell-label">SWS (10% on BCD)</div>
+              <div className="cell-value">₹{sws.toLocaleString()}</div>
+            </div>
+            <div className="telemetry-cell">
+              <div className="cell-label">Integrated GST ({(current.igstRate * 100).toFixed(0)}%)</div>
+              <div className="cell-value">₹{igst.toLocaleString()}</div>
+            </div>
+          </div>
+
+          <div className="landed-cost-banner">
+            <div>
+              <div className="landed-cost-label">Total Landed Import Cost</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                Inclusive of freight, BCD, SWS & IGST
+              </div>
+            </div>
+            <div className="landed-cost-value">₹{totalLandedCost.toLocaleString()}</div>
           </div>
         </aside>
       </main>
 
-      <section className="features-section">
+      {/* Capabilities Section */}
+      <section id="capabilities" className="features-section">
         <div className="section-heading">
-          <span className="eyebrow">Why businesses choose us</span>
-          <h2>Built for faster trade decisions</h2>
+          <div className="eyebrow">Enterprise Capabilities</div>
+          <h2>Engineered for algorithmic compliance & rapid trade clearing</h2>
         </div>
 
         <div className="feature-grid">
           {features.map((feature) => (
             <article className="feature-card" key={feature.title}>
-              <div className="feature-icon">✓</div>
+              <div className="feature-index">{feature.index}</div>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
             </article>

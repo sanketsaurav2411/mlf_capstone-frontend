@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { ThemeProvider } from './context/ThemeContext'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import ChatPage from './pages/ChatPage'
@@ -107,21 +108,23 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
-        <Route path="/login" element={<LoginPage onLogin={handleLogin} isLoggedIn={isLoggedIn} />} />
-        <Route path="/request-demo" element={<RequestDemoPage token={token} />} />
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute isLoggedIn={isLoggedIn} isLoading={isLoadingAuth}>
-              <ChatPage user={user} token={token} onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
+          <Route path="/login" element={<LoginPage onLogin={handleLogin} isLoggedIn={isLoggedIn} />} />
+          <Route path="/request-demo" element={<RequestDemoPage token={token} />} />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn} isLoading={isLoadingAuth}>
+                <ChatPage user={user} token={token} onLogout={handleLogout} />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 

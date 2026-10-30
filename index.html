@@ -8,6 +8,19 @@
     <meta name="description" content="Interactive trade intelligence and customs duty guidance web application." />
     <meta property="og:title" content="TariffFlow AI - Trade Intelligence & Customs Guidance" />
     <meta property="og:description" content="Interactive trade intelligence and customs duty guidance web application." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        var t = localStorage.getItem('tariff_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (t === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

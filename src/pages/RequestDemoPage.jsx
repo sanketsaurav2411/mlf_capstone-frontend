@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import ThemeToggle from '../components/ThemeToggle'
 
 const initialForm = {
   name: '',
   email: '',
-  mobile: '',
   company: '',
-  message: 'We are interested in automated tariff estimation and customs review for our import operations.',
+  message: 'We require automated tariff estimation and statutory customs notice scrutiny for our import operations.',
 }
 
 function RequestDemoPage({ token }) {
@@ -53,16 +53,16 @@ function RequestDemoPage({ token }) {
       if (!response.ok || !result.success) {
         if (result.details && Array.isArray(result.details)) {
           const errorMsgs = result.details.map((d) => d.message).join(', ')
-          setError(errorMsgs || result.message || 'Demo request failed')
+          setError(errorMsgs || result.message || 'Consultation dispatch failed')
         } else {
-          setError(result.message || 'Could not submit demo request. Please check your entries.')
+          setError(result.message || 'Could not submit consultation request.')
         }
         return
       }
 
       setSubmitted(true)
     } catch {
-      setError('Unable to reach server. Please try again.')
+      setError('Unable to reach telemetry server. Check network.')
     } finally {
       setIsLoading(false)
     }
@@ -71,25 +71,30 @@ function RequestDemoPage({ token }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-brand-row">
-          <div className="brand-mark">T</div>
-          <div>
-            <div className="brand-name">TariffFlow AI</div>
-            <div className="brand-tag">Request a demo</div>
-          </div>
+        <div className="auth-header-row">
+          <Link to="/" className="brand-wrap">
+            <div className="brand-mark">TF</div>
+            <div className="brand-text">
+              <span className="brand-name">TariffFlow AI</span>
+              <span className="brand-tag">Trade Calibration</span>
+            </div>
+          </Link>
+          <ThemeToggle />
         </div>
 
-        <h1>Book a demo</h1>
+        <h1>Request Calibration</h1>
         <p className="auth-subtitle">
-          Tell us how to reach you and our team will contact you about the tariff intelligence system.
+          Schedule an enterprise demonstration with our trade compliance and customs tariff engineering team.
         </p>
 
         {submitted ? (
-          <div className="demo-box success-box">
-            <strong>Request submitted successfully</strong>
-            <span>We will contact you shortly at {formData.email}.</span>
-            <Link to="/login" className="primary-button full-width" style={{ marginTop: '12px' }}>
-              Continue to Login
+          <div className="success-box">
+            <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>Request Logged to Telemetry Queue</div>
+            <div style={{ fontSize: '0.82rem', opacity: 0.9 }}>
+              Our trade specialists will dispatch calibration documentation to <code>{formData.email}</code>.
+            </div>
+            <Link to="/login" className="primary-button" style={{ marginTop: '12px' }}>
+              Proceed to Console
             </Link>
           </div>
         ) : (
@@ -97,60 +102,60 @@ function RequestDemoPage({ token }) {
             {error && <div className="error-message">{error}</div>}
 
             <label>
-              Full name
+              Designation / Full Name
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Jane Doe"
+                placeholder="Dr. Jane Doe / Trade Director"
                 required
               />
             </label>
 
             <label>
-              Email address
+              Corporate Email Address
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="you@company.com"
+                placeholder="trade.ops@corporation.com"
                 required
               />
             </label>
 
             <label>
-              Company name
+              Commercial Entity / Organization
               <input
                 type="text"
                 name="company"
                 value={formData.company}
                 onChange={handleChange}
-                placeholder="Your company name"
+                placeholder="Global Freight Solutions Ltd"
               />
             </label>
 
             <label>
-              Requirement details
+              Operational Scope & Requirements
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 rows="3"
-                placeholder="Tell us about your import/export trade requirements..."
+                placeholder="Describe product categories, shipping corridors, and compliance challenges..."
                 required
               />
             </label>
 
-            <button type="submit" className="primary-button full-width" disabled={isLoading}>
-              {isLoading ? 'Submitting...' : 'Submit request'}
+            <button type="submit" className="primary-button" style={{ width: '100%' }} disabled={isLoading}>
+              {isLoading ? 'Transmitting Request...' : 'Submit Calibration Request'}
             </button>
           </form>
         )}
 
         <p className="login-footer">
-          <Link to="/">Back to home</Link>
+          Return to <Link to="/">Telemetric Overview</Link>
         </p>
       </div>
     </div>

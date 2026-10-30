@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import ThemeToggle from '../components/ThemeToggle'
 
 function LoginPage({ onLogin, isLoggedIn }) {
   const navigate = useNavigate()
@@ -47,9 +48,9 @@ function LoginPage({ onLogin, isLoggedIn }) {
       if (!response.ok || !result.success) {
         if (result.details && Array.isArray(result.details)) {
           const detailMessages = result.details.map((d) => d.message).join(', ')
-          setError(detailMessages || result.message || 'Login failed')
+          setError(detailMessages || result.message || 'Authentication failed')
         } else {
-          setError(result.message || 'Invalid email or password. Please try again.')
+          setError(result.message || 'Invalid credentials. Verification failed.')
         }
         return
       }
@@ -58,7 +59,7 @@ function LoginPage({ onLogin, isLoggedIn }) {
       onLogin(result.data)
       navigate('/chat')
     } catch {
-      setError('Unable to reach server. Please try again.')
+      setError('Unable to reach telemetry server. Check connection.')
     } finally {
       setIsLoading(false)
     }
@@ -67,41 +68,44 @@ function LoginPage({ onLogin, isLoggedIn }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-brand-row">
-          <div className="brand-mark">T</div>
-          <div>
-            <div className="brand-name">TariffFlow AI</div>
-            <div className="brand-tag">Business login</div>
-          </div>
+        <div className="auth-header-row">
+          <Link to="/" className="brand-wrap">
+            <div className="brand-mark">TF</div>
+            <div className="brand-text">
+              <span className="brand-name">TariffFlow AI</span>
+              <span className="brand-tag">Authentication Gate</span>
+            </div>
+          </Link>
+          <ThemeToggle />
         </div>
 
-        <h1>Welcome back</h1>
-        <p className="auth-subtitle">Log in to check import duties and review trade documents.</p>
+        <h1>Initialize Session</h1>
+        <p className="auth-subtitle">Verify cryptographic credentials to access tariff telemetry and customs scrutiny console.</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <div className="error-message">{error}</div>}
 
           <label>
-            Email address
+            Identifier (Email)
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="you@example.com"
+              placeholder="operator@company.com"
               required
               aria-invalid={Boolean(error)}
             />
           </label>
 
           <label>
-            Password
+            Security Key (Password)
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter your password"
+              placeholder="Enter password"
               required
               aria-invalid={Boolean(error)}
             />
@@ -110,24 +114,28 @@ function LoginPage({ onLogin, isLoggedIn }) {
           <div className="form-options">
             <label className="remember-me">
               <input type="checkbox" defaultChecked />
-              <span>Keep me signed in</span>
+              <span>Persist Session Token</span>
             </label>
-            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Secure JWT session</span>
+            <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)' }}>
+              JWT 256-bit
+            </span>
           </div>
 
-          <button type="submit" className="primary-button full-width" disabled={isLoading}>
-            {isLoading ? 'Verifying...' : 'Login to dashboard'}
+          <button type="submit" className="primary-button" style={{ width: '100%' }} disabled={isLoading}>
+            {isLoading ? 'Verifying Credentials...' : 'Authenticate & Enter'}
           </button>
         </form>
 
-        <div className="demo-box">
-          <strong>Demo credentials</strong>
-          <span>Email: <code>business@tariff.ai</code> | Password: <code>password123</code></span>
-          <span>Email: <code>demo@example.com</code> | Password: <code>Demo@123</code></span>
+        <div className="demo-credentials-box">
+          <div style={{ fontWeight: 700, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-primary)' }}>
+            Preset Credentials
+          </div>
+          <div>Primary: <code>business@tariff.ai</code> / <code>password123</code></div>
+          <div>Secondary: <code>demo@example.com</code> / <code>Demo@123</code></div>
         </div>
 
         <p className="login-footer">
-          Need an account? <Link to="/">Go back home</Link>
+          Return to <Link to="/">Telemetric Overview</Link>
         </p>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { generateBotReply, initialMessages, quickPrompts } from '../data/chatData'
+import ThemeToggle from '../components/ThemeToggle'
 
 const createLocalId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`
 
@@ -306,18 +307,20 @@ function ChatPage({ user, token, onLogout }) {
     <div className="chat-layout">
       <aside className="chat-sidebar">
         <div className="sidebar-header">
-          <div className="brand-mark">T</div>
-          <div>
-            <div className="brand-name">TariffFlow AI</div>
-            <div className="brand-tag">Trade assistant</div>
+          <div className="brand-wrap">
+            <div className="brand-mark">TF</div>
+            <div className="brand-text">
+              <span className="brand-name">TariffFlow AI</span>
+              <span className="brand-tag">Trade Telemetry</span>
+            </div>
           </div>
         </div>
 
-        <div className="profile-box">
+        <div className="profile-hud">
           <div className="avatar">{userName.charAt(0)}</div>
-          <div>
-            <strong>{userName}</strong>
-            <span>{user?.company || 'Import & Export'}</span>
+          <div className="profile-details">
+            <div className="profile-name">{userName}</div>
+            <div className="profile-company">{user?.company || 'Commercial Logistics'}</div>
           </div>
         </div>
 
@@ -327,14 +330,14 @@ function ChatPage({ user, token, onLogout }) {
 
         <div className="sidebar-scrollable">
           <div className="sidebar-section">
-            <h3>Previous Chats ({conversations.length})</h3>
+            <h3>Previous Sessions ({conversations.length})</h3>
             {isLoadingHistory && conversations.length === 0 ? (
-              <div style={{ fontSize: '0.82rem', color: '#64748b', padding: '8px 0' }}>
-                Loading chat history...
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '8px 0', fontFamily: 'var(--font-mono)' }}>
+                Loading session telemetry...
               </div>
             ) : conversations.length === 0 ? (
-              <div style={{ fontSize: '0.82rem', color: '#64748b', padding: '8px 0' }}>
-                No previous chats yet. Start asking questions below!
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '8px 0' }}>
+                No active records. Initiate query below.
               </div>
             ) : (
               <div className="conversations-container">
@@ -352,7 +355,7 @@ function ChatPage({ user, token, onLogout }) {
                       <button
                         type="button"
                         className="conv-delete-btn"
-                        title="Delete chat"
+                        title="Delete session"
                         onClick={(e) => handleDeleteConversation(e, conv.id)}
                       >
                         ✕
@@ -365,35 +368,38 @@ function ChatPage({ user, token, onLogout }) {
           </div>
 
           <div className="sidebar-section">
-            <h3>Quick prompts</h3>
-            <ul>
+            <h3>Calibrated Prompts</h3>
+            <div className="quick-prompts-list">
               {quickPrompts.map((prompt) => (
-                <li key={prompt}>
-                  <button type="button" onClick={() => setDraft(prompt)}>
-                    {prompt}
-                  </button>
-                </li>
+                <button
+                  key={prompt}
+                  type="button"
+                  className="quick-prompt-btn"
+                  onClick={() => setDraft(prompt)}
+                >
+                  {prompt}
+                </button>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
 
-        <div className="sidebar-logout">
+        <div className="sidebar-footer">
           <button
             type="button"
             className="secondary-button"
-            style={{ width: '100%' }}
+            style={{ width: '100%', fontSize: '0.82rem' }}
             onClick={handleLogout}
           >
-            Log out
+            Terminate Session
           </button>
         </div>
       </aside>
 
       <main className="chat-panel">
         <header className="chat-header">
-          <div>
-            <span className="eyebrow">Business assistant</span>
+          <div className="chat-header-title">
+            <span className="eyebrow" style={{ marginBottom: 0 }}>Empirical Customs Workspace</span>
             <h2>
               {activeTitle}
               {activeConversationId && (
@@ -401,9 +407,12 @@ function ChatPage({ user, token, onLogout }) {
               )}
             </h2>
           </div>
-          <button type="button" className="secondary-button" onClick={handleLogout}>
-            Log out
-          </button>
+          <div className="chat-header-actions">
+            <ThemeToggle />
+            <button type="button" className="secondary-button small-button" onClick={handleLogout}>
+              Log out
+            </button>
+          </div>
         </header>
 
         <div className="chat-messages">
