@@ -69,33 +69,37 @@ function HomePage({ isLoggedIn }) {
   const totalLandedCost = assessableValueInr + bcd + sws + igst + current.freight
 
   return (
-    <div className="page-shell">
-      {/* Topbar: 1-Row, 3-Zone Contract */}
-      <header className="topbar">
-        {/* Zone 1: Single element brand mark */}
-        <Link to="/" className="brand-wrap">
-          <div className="brand-mark">TF</div>
-          <div className="brand-text">
-            <span className="brand-name">TariffFlow AI</span>
-            <span className="brand-tag">Trade Telemetry & Customs Engine</span>
-          </div>
-        </Link>
-
-        {/* Zone 2: Navigation Links */}
-        <nav className="nav-links">
-          <a href="#simulator" className="nav-link">Calibration</a>
-          <a href="#capabilities" className="nav-link">Capabilities</a>
-          <Link to="/request-demo" className="nav-link">Consultation</Link>
-        </nav>
-
-        {/* Zone 3: Primary Action + Theme Toggle */}
-        <div className="nav-actions">
-          <ThemeToggle />
-          <Link to={isLoggedIn ? '/chat' : '/login'} className="primary-button small-button">
-            {isLoggedIn ? 'Open Console' : 'Access System'}
+    <>
+      {/* Frozen / Sticky Topbar */}
+      <div className="topbar-wrapper">
+        <header className="topbar-container">
+          {/* Zone 1: Single element brand mark */}
+          <Link to="/" className="brand-wrap">
+            <div className="brand-mark">TF</div>
+            <div className="brand-text">
+              <span className="brand-name">TariffFlow AI</span>
+              <span className="brand-tag">Trade Telemetry & Customs Engine</span>
+            </div>
           </Link>
-        </div>
-      </header>
+
+          {/* Zone 2: Navigation Links */}
+          <nav className="nav-links">
+            <a href="#simulator" className="nav-link">Calibration</a>
+            <a href="#capabilities" className="nav-link">Capabilities</a>
+            <Link to="/request-demo" className="nav-link">Consultation</Link>
+          </nav>
+
+          {/* Zone 3: Primary Action + Theme Toggle */}
+          <div className="nav-actions">
+            <ThemeToggle />
+            <Link to={isLoggedIn ? '/chat' : '/login'} className="primary-button small-button">
+              {isLoggedIn ? 'Open Console' : 'Access System'}
+            </Link>
+          </div>
+        </header>
+      </div>
+
+      <div className="page-shell">
 
       {/* Hero Section */}
       <main className="hero-section">
@@ -234,6 +238,7 @@ function HomePage({ isLoggedIn }) {
         </div>
       </section>
     </div>
+    </>
   )
 }
 

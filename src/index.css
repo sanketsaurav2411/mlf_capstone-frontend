@@ -2,14 +2,23 @@
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Space Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Light Theme (Clinical Scientific Laboratory) */
-  --bg-canvas: #f8fafc;
+  /* Light Theme (Clinical Glass & Telemetry) */
+  --bg-canvas: #f6f8fc;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
   --bg-subtle: #f8fafc;
-  --border-hairline: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --border-hairline: rgba(148, 163, 184, 0.25);
+  --border-strong: rgba(148, 163, 184, 0.45);
   --border-focus: #2563eb;
+
+  /* Glassmorphism Tokens */
+  --bg-glass: rgba(255, 255, 255, 0.75);
+  --bg-glass-elevated: rgba(255, 255, 255, 0.88);
+  --bg-glass-input: rgba(255, 255, 255, 0.92);
+  --border-glass: rgba(255, 255, 255, 0.8);
+  --border-glass-card: rgba(226, 232, 240, 0.8);
+  --glass-blur: blur(20px);
+  --glass-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
@@ -21,26 +30,35 @@
   --accent-emerald: #059669;
   --accent-amber: #d97706;
 
-  --badge-bg: #eff6ff;
+  --badge-bg: rgba(37, 99, 235, 0.08);
   --badge-text: #1d4ed8;
-  --badge-border: #bfdbfe;
+  --badge-border: rgba(37, 99, 235, 0.2);
 
   --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.05);
-  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 10px 30px -4px rgba(15, 23, 42, 0.08);
 
-  --grid-line: rgba(148, 163, 184, 0.12);
+  --grid-line: rgba(148, 163, 184, 0.1);
   --selection-bg: #dbeafe;
 }
 
 html.dark {
-  /* Dark Theme (Obsidian Deep-Space & Aerospace Telemetry) */
+  /* Dark Theme (Obsidian Glass & Aerospace Cyan Glow) */
   --bg-canvas: #07090e;
   --bg-surface: #0e131f;
   --bg-surface-elevated: #141c2c;
-  --bg-subtle: #111827;
-  --border-hairline: rgba(255, 255, 255, 0.09);
+  --bg-subtle: #101624;
+  --border-hairline: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
   --border-focus: #38bdf8;
+
+  /* Glassmorphism Tokens */
+  --bg-glass: rgba(13, 18, 30, 0.72);
+  --bg-glass-elevated: rgba(18, 25, 42, 0.82);
+  --bg-glass-input: rgba(14, 20, 34, 0.88);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-glass-card: rgba(255, 255, 255, 0.09);
+  --glass-blur: blur(20px);
+  --glass-shadow: 0 14px 40px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
 
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -57,7 +75,7 @@ html.dark {
   --badge-border: rgba(56, 189, 248, 0.25);
 
   --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 14px 40px rgba(0, 0, 0, 0.55);
 
   --grid-line: rgba(255, 255, 255, 0.035);
   --selection-bg: rgba(56, 189, 248, 0.25);
@@ -84,9 +102,11 @@ body {
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   background-image: 
+    radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 65%, rgba(59, 130, 246, 0.04) 0%, transparent 45%),
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
   background-position: top center;
   transition: background-color 0.2s ease, color 0.2s ease;
 }

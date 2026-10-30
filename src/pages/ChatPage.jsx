@@ -21,7 +21,8 @@ function ChatPage({ user, token, onLogout }) {
   const [isSending, setIsSending] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
-  // Extra Features
+  // Extra Features & Glassmorphism Navigation
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isCalcOpen, setIsCalcOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [editingConvId, setEditingConvId] = useState(null)
@@ -363,7 +364,7 @@ function ChatPage({ user, token, onLogout }) {
   return (
     <div className="chat-layout">
       {/* Sidebar: Navigation, HUD, Previous Sessions, Prompts */}
-      <aside className="chat-sidebar">
+      <aside className={`chat-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="brand-wrap">
             <div className="brand-mark">TF</div>
@@ -372,6 +373,18 @@ function ChatPage({ user, token, onLogout }) {
               <span className="brand-tag">Trade Telemetry</span>
             </div>
           </div>
+          {/* Hide Left Bar Icon on the top right side of left bar */}
+          <button
+            type="button"
+            className="collapse-sidebar-btn"
+            onClick={() => setIsSidebarCollapsed(true)}
+            title="Hide left sidebar"
+            aria-label="Hide left sidebar"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
         </div>
 
         <div className="profile-hud">
@@ -496,14 +509,29 @@ function ChatPage({ user, token, onLogout }) {
       {/* Main Chat Workspace */}
       <main className="chat-panel">
         <header className="chat-header">
-          <div className="chat-header-title">
-            <span className="eyebrow" style={{ marginBottom: 0 }}>Empirical Customs Workspace</span>
-            <h2>
-              {activeTitle}
-              {activeConversationId && (
-                <span className="active-chat-pill">Active Memory</span>
-              )}
-            </h2>
+          <div className="header-left-group">
+            {isSidebarCollapsed && (
+              <button
+                type="button"
+                className="open-sidebar-btn"
+                onClick={() => setIsSidebarCollapsed(false)}
+                title="Show left sidebar"
+                aria-label="Show left sidebar"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            )}
+            <div className="chat-header-title">
+              <span className="eyebrow" style={{ marginBottom: 0 }}>Empirical Customs Workspace</span>
+              <h2>
+                {activeTitle}
+                {activeConversationId && (
+                  <span className="active-chat-pill">Active Memory</span>
+                )}
+              </h2>
+            </div>
           </div>
           <div className="chat-header-actions">
             {/* Tariff Calculator Quick Tool */}
@@ -588,63 +616,105 @@ function ChatPage({ user, token, onLogout }) {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="composer">
-          <div className="file-upload-row">
-            <label className="upload-button">
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.csv"
-                onChange={handleFileChange}
-              />
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-              </svg>
-              Attach Document
-            </label>
-
-            <button
-              type="button"
-              className="upload-button"
-              onClick={() => setIsCalcOpen(true)}
-              title="Estimate Landed Cost"
-            >
-              ⚡ Duty Estimator
-            </button>
-
+        {/* Bottom Floating Pill Composer Bar */}
+        <div className="floating-composer-wrap">
+          <div className="floating-composer-inner">
+            {/* Attachment preview pills above the input pill */}
             {selectedFiles.length > 0 && (
-              <div className="selected-files">
-                {selectedFiles.map((file) => (
-                  <span key={file.name} className="attachment-pill">
+              <div className="pill-attachments-row">
+                {selectedFiles.map((file, idx) => (
+                  <span key={`${file.name}-${idx}`} className="attachment-pill">
                     📎 {file.name}
+                    <button
+                      type="button"
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', marginLeft: '6px' }}
+                      onClick={() => setSelectedFiles((prev) => prev.filter((_, i) => i !== idx))}
+                      title="Remove document"
+                    >
+                      ✕
+                    </button>
                   </span>
                 ))}
               </div>
             )}
-          </div>
 
-          <div className="input-row">
-            <textarea
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSend()
-                }
-              }}
-              rows="3"
-              placeholder="Ask about tariff schedules, HS classifications, or follow up on previous inquiries... (Press Enter to Send)"
-            />
-            <button
-              type="button"
-              className="primary-button send-button"
-              disabled={isSending}
-              onClick={handleSend}
-            >
-              {isSending ? 'Analyzing...' : 'Send'}
-            </button>
+            {/* The Floating Pill */}
+            <div className="composer-pill">
+              {/* + Icon to add file */}
+              <label className="pill-action-btn" title="Add file (PDF, DOC, XLS, CSV, Image)">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.csv"
+                  onChange={handleFileChange}
+                />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </label>
+
+              {/* Minimal Calculator Icon */}
+              <button
+                type="button"
+                className="pill-action-btn"
+                onClick={() => setIsCalcOpen(true)}
+                title="Open Landed Duty Estimator"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="16" height="20" x="4" y="2" rx="2" />
+                  <line x1="8" x2="16" y1="6" y2="6" />
+                  <line x1="16" x2="16" y1="14" y2="18" />
+                  <path d="M16 10h.01" />
+                  <path d="M12 10h.01" />
+                  <path d="M8 10h.01" />
+                  <path d="M12 14h.01" />
+                  <path d="M8 14h.01" />
+                  <path d="M12 18h.01" />
+                  <path d="M8 18h.01" />
+                </svg>
+              </button>
+
+              {/* User text input */}
+              <textarea
+                className="pill-input"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    handleSend()
+                  }
+                }}
+                rows={1}
+                placeholder="Ask about tariffs, HS classifications, or upload a customs notice..."
+              />
+
+              {/* Right Side Up-Arrow Send Icon */}
+              <button
+                type="button"
+                className={`pill-send-btn ${draft.trim() || selectedFiles.length > 0 ? 'active' : ''}`}
+                disabled={isSending || (!draft.trim() && selectedFiles.length === 0)}
+                onClick={handleSend}
+                title="Send message (Enter)"
+                aria-label="Send message"
+              >
+                {isSending ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="2" x2="12" y2="6" />
+                    <line x1="12" y1="18" x2="12" y2="22" />
+                    <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
+                    <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </main>
