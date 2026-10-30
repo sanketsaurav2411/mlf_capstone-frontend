@@ -37,22 +37,22 @@ const presets = [
 
 const features = [
   {
-    index: '01 // TELEMETRY',
-    title: 'Algorithmic Duty Forecasting',
+    index: '01 // DUTY CALCULATION',
+    title: 'Automated Landed Cost Calculation',
     description:
-      'Compute Basic Customs Duty, Social Welfare Surcharge, and integrated GST for cross-border shipments with calibrated HS code classification.',
+      'Compute Basic Customs Duty, Social Welfare Surcharge, and GST for cross-border shipments with up-to-date HS code classification.',
   },
   {
-    index: '02 // SCRUTINY',
-    title: 'Statutory Notice Scrutiny',
+    index: '02 // DOCUMENT AUDIT',
+    title: 'Customs Notice & Document Analysis',
     description:
-      'Audit customs demand notices, Section 128 appeal deadlines, and valuation disparities with machine-assisted document parsing.',
+      'Review customs demand notices, verify statutory timelines, and audit valuation discrepancies with smart document parsing.',
   },
   {
-    index: '03 // CONTINUITY',
-    title: 'Stateful Contextual Memory',
+    index: '03 // CONVERSATION MEMORY',
+    title: 'Multi-Turn Trade Inquiry Memory',
     description:
-      'Retain conversational context across multi-turn trade inquiries, volume variations, and input tax credit determinations.',
+      'Retain full conversation context across multi-item shipments, volume adjustments, and input tax credit determinations.',
   },
 ]
 
@@ -60,7 +60,7 @@ function HomePage({ isLoggedIn }) {
   const [selectedPreset, setSelectedPreset] = useState(0)
   const current = presets[selectedPreset]
 
-  // Scientific calculation
+  // Real-world trade duty calculation
   const assessableValueInr = Math.round(current.usd * current.fxRate)
   const bcd = Math.round(assessableValueInr * current.bcdRate)
   const sws = Math.round(bcd * current.swsRate)
@@ -73,27 +73,27 @@ function HomePage({ isLoggedIn }) {
       {/* Frozen / Sticky Topbar */}
       <div className="topbar-wrapper">
         <header className="topbar-container">
-          {/* Zone 1: Single element brand mark */}
+          {/* Zone 1: Brand mark & title */}
           <Link to="/" className="brand-wrap">
             <div className="brand-mark">TF</div>
             <div className="brand-text">
               <span className="brand-name">TariffFlow AI</span>
-              <span className="brand-tag">Trade Telemetry & Customs Engine</span>
+              <span className="brand-tag">Customs & Trade Intelligence</span>
             </div>
           </Link>
 
           {/* Zone 2: Navigation Links */}
           <nav className="nav-links">
-            <a href="#simulator" className="nav-link">Calibration</a>
-            <a href="#capabilities" className="nav-link">Capabilities</a>
-            <Link to="/request-demo" className="nav-link">Consultation</Link>
+            <a href="#simulator" className="nav-link">Duty Calculator</a>
+            <a href="#features" className="nav-link">Features</a>
+            <Link to="/request-demo" className="nav-link">Request Demo</Link>
           </nav>
 
           {/* Zone 3: Primary Action + Theme Toggle */}
           <div className="nav-actions">
             <ThemeToggle />
             <Link to={isLoggedIn ? '/chat' : '/login'} className="primary-button small-button">
-              {isLoggedIn ? 'Open Console' : 'Access System'}
+              {isLoggedIn ? 'Open Chat' : 'Sign In'}
             </Link>
           </div>
         </header>
@@ -105,49 +105,49 @@ function HomePage({ isLoggedIn }) {
       <main className="hero-section">
         <section className="hero-copy">
           <div className="eyebrow">
-            <span>Precision Customs Architecture</span>
+            <span>CUSTOMS DUTY & COMPLIANCE PLATFORM</span>
             <span aria-hidden="true">·</span>
-            <span>HS 2026 Engine</span>
+            <span>HS 2026 SCHEDULE</span>
           </div>
 
-          <h1>Empirical customs and tariff intelligence for global trade.</h1>
+          <h1>Instant customs duty calculation & trade intelligence.</h1>
 
           <p>
-            Evaluate import tariffs, verify HS classifications, assess Section 128 statutory notices, and calculate precise landed shipment costs before capital is deployed.
+            Calculate landed import costs, verify Harmonized System (HS) classifications, and analyze customs notices with AI-assisted trade intelligence.
           </p>
 
           <div className="action-row">
             <Link to={isLoggedIn ? '/chat' : '/login'} className="primary-button">
-              {isLoggedIn ? 'Launch Trade Console' : 'Initialize Workspace'}
+              {isLoggedIn ? 'Launch Chat Assistant' : 'Try Free Assistant'}
             </Link>
             <Link to="/request-demo" className="secondary-button">
-              Schedule Calibration
+              Request a Demo
             </Link>
           </div>
 
           <div className="stats-grid">
             <div className="stat-card">
               <span className="stat-value tabular-nums">1.4s</span>
-              <span className="stat-label">Classification Latency</span>
+              <span className="stat-label">Average Response Time</span>
             </div>
             <div className="stat-card">
               <span className="stat-value tabular-nums">99.8%</span>
-              <span className="stat-label">HS Mapping Accuracy</span>
+              <span className="stat-label">Tariff Rate Accuracy</span>
             </div>
             <div className="stat-card">
-              <span className="stat-value tabular-nums">24 / 7</span>
-              <span className="stat-label">Active Port Telemetry</span>
+              <span className="stat-value tabular-nums">180+</span>
+              <span className="stat-label">Trade Corridors</span>
             </div>
           </div>
         </section>
 
-        {/* Scientific Simulation Console */}
+        {/* Live Duty Simulator Panel */}
         <aside id="simulator" className="scientific-panel">
           <div className="panel-top-hud">
             <div className="panel-title">
-              <span>Interactive Calibrator</span>
+              <span>Duty Estimator</span>
               <span aria-hidden="true">·</span>
-              <span>Live Assessment</span>
+              <span>Live Breakdown</span>
             </div>
             <div className="route-indicator">{current.route}</div>
           </div>
@@ -220,11 +220,11 @@ function HomePage({ isLoggedIn }) {
         </aside>
       </main>
 
-      {/* Capabilities Section */}
-      <section id="capabilities" className="features-section">
+      {/* Features Section */}
+      <section id="features" className="features-section">
         <div className="section-heading">
-          <div className="eyebrow">Enterprise Capabilities</div>
-          <h2>Engineered for algorithmic compliance & rapid trade clearing</h2>
+          <div className="eyebrow">Core Capabilities</div>
+          <h2>Engineered for accurate duty calculation & rapid customs clearance</h2>
         </div>
 
         <div className="feature-grid">

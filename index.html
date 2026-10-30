@@ -4,13 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TariffFlow AI - Trade Intelligence & Customs Guidance</title>
-    <meta name="description" content="Interactive trade intelligence and customs duty guidance web application." />
-    <meta property="og:title" content="TariffFlow AI - Trade Intelligence & Customs Guidance" />
-    <meta property="og:description" content="Interactive trade intelligence and customs duty guidance web application." />
+    <title>TariffFlow AI - Customs Duty & Global Trade Intelligence</title>
+    <meta name="description" content="AI platform for customs duty calculation, HS code classification, landed cost estimation, and import compliance." />
+    <meta property="og:title" content="TariffFlow AI - Customs Duty & Global Trade Intelligence" />
+    <meta property="og:description" content="AI platform for customs duty calculation, HS code classification, landed cost estimation, and import compliance." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
       (function() {
         var t = localStorage.getItem('tariff_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -22,6 +23,7 @@
       })();
     </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

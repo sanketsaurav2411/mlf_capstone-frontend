@@ -577,7 +577,7 @@
   border: 1px solid var(--border-hairline);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
@@ -585,6 +585,120 @@
 .demo-credentials-box code {
   color: var(--accent-cyan);
 }
+
+.demo-presets-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.demo-fill-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.demo-fill-btn:hover {
+  border-color: var(--accent-cyan);
+  background: var(--bg-surface-elevated);
+  color: var(--accent-cyan);
+}
+
+/* Google Sign-in Button & Divider */
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0.78rem 1rem;
+  border-radius: 10px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.google-btn:hover {
+  background: var(--bg-glass-elevated);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.google-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-hairline);
+}
+
+.google-prompt-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(66, 133, 244, 0.08);
+  border: 1px solid rgba(66, 133, 244, 0.25);
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.google-account-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-hairline);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.google-account-pill:hover {
+  border-color: #4285f4;
+  background: var(--bg-glass-elevated);
+}
+
 
 .success-box {
   background: rgba(16, 185, 129, 0.08);

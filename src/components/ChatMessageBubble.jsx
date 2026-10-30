@@ -90,12 +90,12 @@ export default function ChatMessageBubble({ message, userName = 'You' }) {
   }
 
   const handleDownloadReport = () => {
-    const content = `TARIFFFLOW AI - TRADE AUDIT REPORT\nGenerated: ${new Date().toISOString()}\n\n${message.text}\n\nDisclaimer: Automated advisory for commercial reference.`
+    const content = `TARIFFFLOW AI - CUSTOMS & DUTY REPORT\nGenerated: ${new Date().toISOString()}\n\n${message.text}\n\nDisclaimer: Automated trade guidance for commercial reference.`
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `customs-audit-${Date.now()}.txt`
+    a.download = `customs-report-${Date.now()}.txt`
     a.click()
     URL.revokeObjectURL(a)
   }
@@ -131,14 +131,14 @@ export default function ChatMessageBubble({ message, userName = 'You' }) {
   return (
     <div className="message-row bot">
       <div className="message-bubble bot-bubble">
-        {/* Futuristic Technical Bot Header */}
+        {/* Technical Bot Header */}
         <div className="bot-header-hud">
           <div className="bot-identity">
             <span className="bot-mark-chip">TF</span>
-            <span className="bot-name">Customs Telemetry Engine</span>
+            <span className="bot-name">TariffFlow AI Assistant</span>
           </div>
           <div className="bot-meta-right">
-            <span className="bot-status-tag">CBIC 2026 Verified</span>
+            <span className="bot-status-tag">Customs Schedule 2026</span>
             {formattedTime && <span className="meta-time">{formattedTime}</span>}
           </div>
         </div>
@@ -189,22 +189,23 @@ export default function ChatMessageBubble({ message, userName = 'You' }) {
               type="button"
               className="msg-action-btn"
               onClick={handleDownloadReport}
-              title="Download structured duty audit report"
+              title="Download structured duty report"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" x2="12" y1="15" y2="3" />
               </svg>
-              <span>Export Audit</span>
+              <span>Export Report</span>
             </button>
           </div>
 
           <div className="statutory-cite">
-            <span>Statutory Citation: Customs Act 1962 / CBIC Sch.</span>
+            <span>Reference: Customs Tariff Schedule & Regulations</span>
           </div>
         </div>
       </div>
     </div>
   )
 }
+

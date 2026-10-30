@@ -363,14 +363,14 @@ function ChatPage({ user, token, onLogout }) {
 
   return (
     <div className="chat-layout">
-      {/* Sidebar: Navigation, HUD, Previous Sessions, Prompts */}
+      {/* Sidebar: Navigation, Profile, Chat History, Suggested Prompts */}
       <aside className={`chat-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="brand-wrap">
             <div className="brand-mark">TF</div>
             <div className="brand-text">
               <span className="brand-name">TariffFlow AI</span>
-              <span className="brand-tag">Trade Telemetry</span>
+              <span className="brand-tag">Trade Assistant</span>
             </div>
           </div>
           {/* Hide Left Bar Icon on the top right side of left bar */}
@@ -388,9 +388,20 @@ function ChatPage({ user, token, onLogout }) {
         </div>
 
         <div className="profile-hud">
-          <div className="avatar">{userName.charAt(0)}</div>
+          {user?.avatar ? (
+            <img src={user.avatar} alt={userName} className="avatar" style={{ objectFit: 'cover' }} />
+          ) : (
+            <div className="avatar">{userName.charAt(0)}</div>
+          )}
           <div className="profile-details">
-            <div className="profile-name">{userName}</div>
+            <div className="profile-name">
+              {userName}
+              {user?.provider === 'google' && (
+                <span style={{ fontSize: '0.65rem', marginLeft: '6px', color: '#4285f4', fontWeight: 600 }}>
+                  Google
+                </span>
+              )}
+            </div>
             <div className="profile-company">{user?.company || 'Commercial Logistics'}</div>
           </div>
         </div>
@@ -402,7 +413,7 @@ function ChatPage({ user, token, onLogout }) {
         <div className="sidebar-scrollable">
           <div className="sidebar-section">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <h3>Previous Sessions ({conversations.length})</h3>
+              <h3>Chat History ({conversations.length})</h3>
             </div>
 
             {/* Session Search Bar */}
@@ -410,7 +421,7 @@ function ChatPage({ user, token, onLogout }) {
               <div className="session-search-box">
                 <input
                   type="text"
-                  placeholder="Filter sessions..."
+                  placeholder="Search conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="session-search-input"
@@ -420,11 +431,11 @@ function ChatPage({ user, token, onLogout }) {
 
             {isLoadingHistory && conversations.length === 0 ? (
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '8px 0', fontFamily: 'var(--font-mono)' }}>
-                Loading session telemetry...
+                Loading conversations...
               </div>
             ) : filteredConversations.length === 0 ? (
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '8px 0' }}>
-                {conversations.length === 0 ? 'No active records. Initiate query below.' : 'No matching sessions found.'}
+                {conversations.length === 0 ? 'No saved chats yet. Start a conversation below.' : 'No matching conversations.'}
               </div>
             ) : (
               <div className="conversations-container">
@@ -457,7 +468,7 @@ function ChatPage({ user, token, onLogout }) {
                       <button
                         type="button"
                         className="conv-edit-btn"
-                        title="Rename title"
+                        title="Rename conversation"
                         onClick={(e) => handleStartRename(e, conv)}
                       >
                         ✎
@@ -465,7 +476,7 @@ function ChatPage({ user, token, onLogout }) {
                       <button
                         type="button"
                         className="conv-delete-btn"
-                        title="Delete session"
+                        title="Delete conversation"
                         onClick={(e) => handleDeleteConversation(e, conv.id)}
                       >
                         ✕
@@ -478,7 +489,7 @@ function ChatPage({ user, token, onLogout }) {
           </div>
 
           <div className="sidebar-section">
-            <h3>Calibrated Prompts</h3>
+            <h3>Suggested Questions</h3>
             <div className="quick-prompts-list">
               {quickPrompts.map((prompt) => (
                 <button
@@ -501,10 +512,11 @@ function ChatPage({ user, token, onLogout }) {
             style={{ width: '100%', fontSize: '0.82rem' }}
             onClick={handleLogout}
           >
-            Terminate Session
+            Sign Out
           </button>
         </div>
       </aside>
+
 
       {/* Main Chat Workspace */}
       <main className="chat-panel">
@@ -524,11 +536,11 @@ function ChatPage({ user, token, onLogout }) {
               </button>
             )}
             <div className="chat-header-title">
-              <span className="eyebrow" style={{ marginBottom: 0 }}>Empirical Customs Workspace</span>
+              <span className="eyebrow" style={{ marginBottom: 0 }}>AI Customs & Trade Assistant</span>
               <h2>
                 {activeTitle}
                 {activeConversationId && (
-                  <span className="active-chat-pill">Active Memory</span>
+                  <span className="active-chat-pill">Saved Session</span>
                 )}
               </h2>
             </div>
@@ -550,7 +562,7 @@ function ChatPage({ user, token, onLogout }) {
                 type="button"
                 className="secondary-button small-button"
                 onClick={handleExportTranscript}
-                title="Export session as Markdown"
+                title="Export chat transcript as Markdown"
               >
                 ↓ Export
               </button>
@@ -559,7 +571,7 @@ function ChatPage({ user, token, onLogout }) {
             <ThemeToggle />
 
             <button type="button" className="secondary-button small-button" onClick={handleLogout}>
-              Log out
+              Sign Out
             </button>
           </div>
         </header>
@@ -567,15 +579,15 @@ function ChatPage({ user, token, onLogout }) {
         <div className="chat-messages">
           {isLoadingHistory ? (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-              Loading conversation telemetry...
+              Loading conversation history...
             </div>
           ) : messages.length === 0 ? (
             <div className="chat-empty-state">
-              <div className="empty-state-badge">Calibration Console</div>
-              <h3>Empirical Customs & Tariff Engine</h3>
+              <div className="empty-state-badge">Customs AI Assistant</div>
+              <h3>How can I help with your trade & customs today?</h3>
               <p>
-                No active session loaded. Inquire about landed duties, verify statutory HS classifications,
-                or upload an import notice below to begin.
+                Ask about import duties, calculate landed costs, verify HS code classifications,
+                or upload a customs notice to review duty liabilities.
               </p>
               <div className="empty-prompt-chips">
                 {quickPrompts.slice(0, 3).map((prompt) => (
@@ -596,7 +608,7 @@ function ChatPage({ user, token, onLogout }) {
             ))
           )}
 
-          {/* Scientific Telemetry Pulse Indicator when generating */}
+          {/* Activity pulse indicator when generating */}
           {isSending && (
             <div className="message-row bot">
               <div className="analyzing-hud">
@@ -606,12 +618,13 @@ function ChatPage({ user, token, onLogout }) {
                   <div className="pulse-bar" />
                 </div>
                 <div className="analyzing-text">
-                  <span className="analyzing-title">CALIBRATING CUSTOMS TARIFF SCHEDULES</span>
-                  <span className="analyzing-subtitle">Evaluating HS subheadings, statutory circulars, and landed duty impact...</span>
+                  <span className="analyzing-title">CALCULATING DUTIES & ANALYZING REGULATIONS</span>
+                  <span className="analyzing-subtitle">Checking HS code classifications, customs circulars, and landed duty impact...</span>
                 </div>
               </div>
             </div>
           )}
+
 
           <div ref={messagesEndRef} />
         </div>

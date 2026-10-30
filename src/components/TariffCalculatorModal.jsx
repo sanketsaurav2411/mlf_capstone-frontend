@@ -31,8 +31,8 @@ export default function TariffCalculatorModal({ isOpen, onClose, onInsertPrompt 
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-wrap">
-            <span className="empty-state-badge">Calibration Instrument</span>
-            <h3>Landed Tariff & Customs Duty Estimator</h3>
+            <span className="empty-state-badge">Duty Calculator</span>
+            <h3>Landed Cost & Tariff Estimator</h3>
           </div>
           <button type="button" className="modal-close-btn" onClick={onClose}>
             ✕

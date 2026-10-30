@@ -6,7 +6,7 @@ const initialForm = {
   name: '',
   email: '',
   company: '',
-  message: 'We require automated tariff estimation and statutory customs notice scrutiny for our import operations.',
+  message: 'We require automated tariff estimation and statutory customs notice review for our cross-border operations.',
 }
 
 function RequestDemoPage({ token }) {
@@ -53,16 +53,16 @@ function RequestDemoPage({ token }) {
       if (!response.ok || !result.success) {
         if (result.details && Array.isArray(result.details)) {
           const errorMsgs = result.details.map((d) => d.message).join(', ')
-          setError(errorMsgs || result.message || 'Consultation dispatch failed')
+          setError(errorMsgs || result.message || 'Demo request failed')
         } else {
-          setError(result.message || 'Could not submit consultation request.')
+          setError(result.message || 'Could not submit demo request. Please try again.')
         }
         return
       }
 
       setSubmitted(true)
     } catch {
-      setError('Unable to reach telemetry server. Check network.')
+      setError('Unable to reach server. Please check your network connection.')
     } finally {
       setIsLoading(false)
     }
@@ -76,25 +76,25 @@ function RequestDemoPage({ token }) {
             <div className="brand-mark">TF</div>
             <div className="brand-text">
               <span className="brand-name">TariffFlow AI</span>
-              <span className="brand-tag">Trade Calibration</span>
+              <span className="brand-tag">Customs & Trade Intelligence</span>
             </div>
           </Link>
           <ThemeToggle />
         </div>
 
-        <h1>Request Calibration</h1>
+        <h1>Request a Demo</h1>
         <p className="auth-subtitle">
-          Schedule an enterprise demonstration with our trade compliance and customs tariff engineering team.
+          Schedule a personalized walkthrough of TariffFlow AI's customs duty engine and compliance tools.
         </p>
 
         {submitted ? (
           <div className="success-box">
-            <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>Request Logged to Telemetry Queue</div>
+            <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>Request Submitted Successfully</div>
             <div style={{ fontSize: '0.82rem', opacity: 0.9 }}>
-              Our trade specialists will dispatch calibration documentation to <code>{formData.email}</code>.
+              Thank you! Our trade solutions team will contact you at <code>{formData.email}</code> within 24 hours.
             </div>
             <Link to="/login" className="primary-button" style={{ marginTop: '12px' }}>
-              Proceed to Console
+              Proceed to Sign In
             </Link>
           </div>
         ) : (
@@ -102,31 +102,31 @@ function RequestDemoPage({ token }) {
             {error && <div className="error-message">{error}</div>}
 
             <label>
-              Designation / Full Name
+              Full Name
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Dr. Jane Doe / Trade Director"
+                placeholder="Jane Doe"
                 required
               />
             </label>
 
             <label>
-              Corporate Email Address
+              Work Email Address
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="trade.ops@corporation.com"
+                placeholder="jane@company.com"
                 required
               />
             </label>
 
             <label>
-              Commercial Entity / Organization
+              Company / Organization
               <input
                 type="text"
                 name="company"
@@ -137,25 +137,25 @@ function RequestDemoPage({ token }) {
             </label>
 
             <label>
-              Operational Scope & Requirements
+              Requirements & Scope
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 rows="3"
-                placeholder="Describe product categories, shipping corridors, and compliance challenges..."
+                placeholder="Describe your product categories, trade lanes, or customs compliance goals..."
                 required
               />
             </label>
 
             <button type="submit" className="primary-button" style={{ width: '100%' }} disabled={isLoading}>
-              {isLoading ? 'Transmitting Request...' : 'Submit Calibration Request'}
+              {isLoading ? 'Submitting Request...' : 'Submit Request'}
             </button>
           </form>
         )}
 
         <p className="login-footer">
-          Return to <Link to="/">Telemetric Overview</Link>
+          Return to <Link to="/">Home</Link>
         </p>
       </div>
     </div>
@@ -163,4 +163,3 @@ function RequestDemoPage({ token }) {
 }
 
 export default RequestDemoPage
-
