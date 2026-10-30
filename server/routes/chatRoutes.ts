@@ -11,6 +11,7 @@ import {
   getConversation,
   createConversationHandler,
   deleteConversationHandler,
+  updateConversationHandler,
 } from '../controllers/chatController';
 import { chatValidator } from '../validators/chatValidators';
 
@@ -65,6 +66,7 @@ const upload = multer({
 router.get('/conversations', requireAuth, listConversations);
 router.post('/conversations', requireAuth, createConversationHandler);
 router.get('/conversations/:id', requireAuth, getConversation);
+router.patch('/conversations/:id', requireAuth, updateConversationHandler);
 router.delete('/conversations/:id', requireAuth, deleteConversationHandler);
 
 // Chat execution within conversation

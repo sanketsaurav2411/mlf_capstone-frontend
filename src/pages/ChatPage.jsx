@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { generateBotReply, quickPrompts } from '../data/chatData'
 import ThemeToggle from '../components/ThemeToggle'
+import ChatMessageBubble from '../components/ChatMessageBubble'
+import TariffCalculatorModal from '../components/TariffCalculatorModal'
 
 const createLocalId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`
 
@@ -19,13 +21,28 @@ function ChatPage({ user, token, onLogout }) {
   const [isSending, setIsSending] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
+  // Extra Features
+  const [isCalcOpen, setIsCalcOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [editingConvId, setEditingConvId] = useState(null)
+  const [editingTitleText, setEditingTitleText] = useState('')
+
   const userName = useMemo(() => user?.name || 'Business User', [user])
   const activeToken = useMemo(() => token || localStorage.getItem('tariff_token') || '', [token])
+
+  // Filtered conversations based on search
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations
+    const q = searchQuery.toLowerCase()
+    return conversations.filter(
+      (c) => c.title.toLowerCase().includes(q) || (c.lastMessage && c.lastMessage.toLowerCase().includes(q))
+    )
+  }, [conversations, searchQuery])
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, isSending])
 
   // Fetch messages for a specific conversation
   const loadConversationMessages = useCallback(
@@ -153,6 +170,74 @@ function ChatPage({ user, token, onLogout }) {
     }
   }
 
+  // Rename conversation title
+  const handleStartRename = (e, conv) => {
+    e.stopPropagation()
+    setEditingConvId(conv.id)
+    setEditingTitleText(conv.title)
+  }
+
+  const handleSaveRename = async (e, convId) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const trimmed = editingTitleText.trim()
+    if (!trimmed) {
+      setEditingConvId(null)
+      return
+    }
+
+    try {
+      await fetch(`/api/conversations/${convId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${activeToken}`,
+        },
+        body: JSON.stringify({ title: trimmed }),
+      })
+
+      setConversations((prev) =>
+        prev.map((c) => (c.id === convId ? { ...c, title: trimmed } : c))
+      )
+      if (activeConversationId === convId) {
+        setActiveTitle(trimmed)
+      }
+    } catch (err) {
+      console.warn('Failed to rename session:', err)
+    } finally {
+      setEditingConvId(null)
+    }
+  }
+
+  // Export full chat transcript as Markdown
+  const handleExportTranscript = () => {
+    if (messages.length === 0) return
+
+    let content = `# TARIFFFLOW AI - TRADE INQUIRY TRANSCRIPT\n`
+    content += `Title: ${activeTitle}\n`
+    content += `Export Date: ${new Date().toISOString()}\n`
+    content += `Operator: ${userName} (${user?.company || 'Commercial Logistics'})\n\n---\n\n`
+
+    messages.forEach((m) => {
+      const sender = m.sender === 'user' ? userName : 'TariffFlow AI Engine'
+      const time = m.createdAt ? new Date(m.createdAt).toLocaleString() : ''
+      content += `### [${sender}] - ${time}\n`
+      content += `${m.text}\n`
+      if (m.files && m.files.length > 0) {
+        content += `Attachments: ${m.files.map((f) => f.name).join(', ')}\n`
+      }
+      content += `\n`
+    })
+
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `tariff-transcript-${activeConversationId || 'session'}.md`
+    a.click()
+    URL.revokeObjectURL(a)
+  }
+
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files || [])
     setSelectedFiles(files)
@@ -177,6 +262,7 @@ function ChatPage({ user, token, onLogout }) {
       sender: 'user',
       text: trimmedMessage || 'Please review the attached document.',
       files: filesToSend.map((file) => ({ name: file.name, size: file.size })),
+      createdAt: new Date().toISOString(),
     }
 
     setMessages((current) => [...current, userMessage])
@@ -266,6 +352,7 @@ function ChatPage({ user, token, onLogout }) {
         id: createLocalId('msg-bot'),
         sender: 'bot',
         text: replyText,
+        createdAt: new Date().toISOString(),
       }
       setMessages((current) => [...current, botMessage])
     }
@@ -275,6 +362,7 @@ function ChatPage({ user, token, onLogout }) {
 
   return (
     <div className="chat-layout">
+      {/* Sidebar: Navigation, HUD, Previous Sessions, Prompts */}
       <aside className="chat-sidebar">
         <div className="sidebar-header">
           <div className="brand-wrap">
@@ -300,28 +388,67 @@ function ChatPage({ user, token, onLogout }) {
 
         <div className="sidebar-scrollable">
           <div className="sidebar-section">
-            <h3>Previous Sessions ({conversations.length})</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <h3>Previous Sessions ({conversations.length})</h3>
+            </div>
+
+            {/* Session Search Bar */}
+            {conversations.length > 2 && (
+              <div className="session-search-box">
+                <input
+                  type="text"
+                  placeholder="Filter sessions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="session-search-input"
+                />
+              </div>
+            )}
+
             {isLoadingHistory && conversations.length === 0 ? (
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '8px 0', fontFamily: 'var(--font-mono)' }}>
                 Loading session telemetry...
               </div>
-            ) : conversations.length === 0 ? (
+            ) : filteredConversations.length === 0 ? (
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', padding: '8px 0' }}>
-                No active records. Initiate query below.
+                {conversations.length === 0 ? 'No active records. Initiate query below.' : 'No matching sessions found.'}
               </div>
             ) : (
               <div className="conversations-container">
-                {conversations.map((conv) => (
+                {filteredConversations.map((conv) => (
                   <div
                     key={conv.id}
                     className={`conversation-item ${conv.id === activeConversationId ? 'active' : ''}`}
                     onClick={() => handleSelectConversation(conv)}
                   >
                     <div className="conv-info">
-                      <div className="conv-title">{conv.title}</div>
-                      <div className="conv-preview">{conv.lastMessage}</div>
+                      {editingConvId === conv.id ? (
+                        <form onSubmit={(e) => handleSaveRename(e, conv.id)} className="inline-rename-form">
+                          <input
+                            type="text"
+                            value={editingTitleText}
+                            autoFocus
+                            onChange={(e) => setEditingTitleText(e.target.value)}
+                            onBlur={(e) => handleSaveRename(e, conv.id)}
+                            className="inline-rename-input"
+                          />
+                        </form>
+                      ) : (
+                        <>
+                          <div className="conv-title">{conv.title}</div>
+                          <div className="conv-preview">{conv.lastMessage}</div>
+                        </>
+                      )}
                     </div>
                     <div className="conv-actions">
+                      <button
+                        type="button"
+                        className="conv-edit-btn"
+                        title="Rename title"
+                        onClick={(e) => handleStartRename(e, conv)}
+                      >
+                        ✎
+                      </button>
                       <button
                         type="button"
                         className="conv-delete-btn"
@@ -366,6 +493,7 @@ function ChatPage({ user, token, onLogout }) {
         </div>
       </aside>
 
+      {/* Main Chat Workspace */}
       <main className="chat-panel">
         <header className="chat-header">
           <div className="chat-header-title">
@@ -378,7 +506,30 @@ function ChatPage({ user, token, onLogout }) {
             </h2>
           </div>
           <div className="chat-header-actions">
+            {/* Tariff Calculator Quick Tool */}
+            <button
+              type="button"
+              className="secondary-button small-button"
+              onClick={() => setIsCalcOpen(true)}
+              title="Open Landed Duty Estimator"
+            >
+              ⚡ Calculator
+            </button>
+
+            {/* Transcript Exporter */}
+            {messages.length > 0 && (
+              <button
+                type="button"
+                className="secondary-button small-button"
+                onClick={handleExportTranscript}
+                title="Export session as Markdown"
+              >
+                ↓ Export
+              </button>
+            )}
+
             <ThemeToggle />
+
             <button type="button" className="secondary-button small-button" onClick={handleLogout}>
               Log out
             </button>
@@ -413,22 +564,27 @@ function ChatPage({ user, token, onLogout }) {
             </div>
           ) : (
             messages.map((message) => (
-              <div key={message.id} className={`message-row ${message.sender}`}>
-                <div className="message-bubble">
-                  <p>{message.text}</p>
-                  {message.files && message.files.length > 0 && (
-                    <div className="attachment-list">
-                      {message.files.map((file) => (
-                        <span key={`${message.id}-${file.name}`} className="attachment-pill">
-                          📄 {file.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <ChatMessageBubble key={message.id} message={message} userName={userName} />
             ))
           )}
+
+          {/* Scientific Telemetry Pulse Indicator when generating */}
+          {isSending && (
+            <div className="message-row bot">
+              <div className="analyzing-hud">
+                <div className="analyzing-pulse-bars">
+                  <div className="pulse-bar" />
+                  <div className="pulse-bar" />
+                  <div className="pulse-bar" />
+                </div>
+                <div className="analyzing-text">
+                  <span className="analyzing-title">CALIBRATING CUSTOMS TARIFF SCHEDULES</span>
+                  <span className="analyzing-subtitle">Evaluating HS subheadings, statutory circulars, and landed duty impact...</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
 
@@ -442,8 +598,21 @@ function ChatPage({ user, token, onLogout }) {
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.csv"
                 onChange={handleFileChange}
               />
-              Upload document
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+              Attach Document
             </label>
+
+            <button
+              type="button"
+              className="upload-button"
+              onClick={() => setIsCalcOpen(true)}
+              title="Estimate Landed Cost"
+            >
+              ⚡ Duty Estimator
+            </button>
+
             {selectedFiles.length > 0 && (
               <div className="selected-files">
                 {selectedFiles.map((file) => (
@@ -466,7 +635,7 @@ function ChatPage({ user, token, onLogout }) {
                 }
               }}
               rows="3"
-              placeholder="Ask a question about tariff, customs duty, or follow up on previous answers..."
+              placeholder="Ask about tariff schedules, HS classifications, or follow up on previous inquiries... (Press Enter to Send)"
             />
             <button
               type="button"
@@ -474,11 +643,18 @@ function ChatPage({ user, token, onLogout }) {
               disabled={isSending}
               onClick={handleSend}
             >
-              {isSending ? 'Sending...' : 'Send'}
+              {isSending ? 'Analyzing...' : 'Send'}
             </button>
           </div>
         </div>
       </main>
+
+      {/* Interactive Tariff Calculator Modal */}
+      <TariffCalculatorModal
+        isOpen={isCalcOpen}
+        onClose={() => setIsCalcOpen(false)}
+        onInsertPrompt={(prompt) => setDraft(prompt)}
+      />
     </div>
   )
 }

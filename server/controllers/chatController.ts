@@ -92,6 +92,36 @@ export async function deleteConversationHandler(req: AuthRequest, res: Response,
   }
 }
 
+export async function updateConversationHandler(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.sub;
+    const { id } = req.params;
+    const { title } = req.body;
+
+    if (!userId) {
+      return next(new AppError('User not authenticated', 401));
+    }
+
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      return next(new AppError('A valid title is required', 400));
+    }
+
+    const { updateConversationTitle } = await import('../services/chatService');
+    const updated = updateConversationTitle(userId, id, title);
+    if (!updated) {
+      return next(new AppError('Conversation not found', 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Conversation title updated successfully',
+      data: updated,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 export async function processChat(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user?.sub;

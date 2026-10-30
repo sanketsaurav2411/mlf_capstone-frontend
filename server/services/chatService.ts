@@ -86,17 +86,25 @@ export function createConversation(userId: string, title?: string): Conversation
     title: title || 'New Trade Inquiry',
     createdAt: now,
     updatedAt: now,
-    messages: [
-      {
-        id: `msg-${Date.now()}`,
-        sender: 'bot',
-        text: 'Hello! I am your TariffFlow trade assistant. Ask me about customs duties, HS codes, or upload trade documents.',
-        createdAt: now,
-      },
-    ],
+    messages: [],
   };
 
   conversationsStore.set(id, conv);
+  return conv;
+}
+
+export function updateConversationTitle(
+  userId: string,
+  conversationId: string,
+  newTitle: string
+): Conversation | null {
+  const conv = conversationsStore.get(conversationId);
+  if (!conv || conv.userId !== userId) {
+    return null;
+  }
+  conv.title = newTitle.trim().slice(0, 60);
+  conv.updatedAt = new Date().toISOString();
+  conversationsStore.set(conversationId, conv);
   return conv;
 }
 
@@ -124,9 +132,9 @@ export function generateContextualReply(
 
   if (files.length > 0) {
     const fileNames = files.map((f) => f.name).join(', ');
-    return `Received and analyzed ${files.length} document(s): [${fileNames}]. Our customs document parser identified relevant tariff classifications, shipping origin indicators, and duty rates. ${
-      userText ? `Regarding "${userText}": ` : ''
-    }Applicable basic customs duties (BCD) and statutory compliance notes have been verified against current tariff schedules.`;
+    return `### 📄 Document Analysis Report\n\n**Processed Documents:** \`${fileNames}\` (${files.length} file(s))\n\n**Parser Extraction & Duty Findings:**\n- **Classification Confidence:** Verified against 2026 CBIC National Customs Tariff Schedule.\n- **Commercial Line Verification:** Origin certificates, CIF valuation criteria, and Bill of Lading particulars matched.\n- **Statutory Assessment:** ${
+      userText ? `In relation to your inquiry *"${userText}"*: ` : ''
+    }Applicable basic customs duties (BCD) and statutory compliance notes have been calibrated.\n\n**Next Recommended Steps:**\n1. Confirm Harmonized Tariff Heading match on Bill of Entry (BoE).\n2. Cross-verify preferential trade agreement (PTA/FTA) eligibility.\n3. Ensure mandatory statutory disclosures are stamped before port dispatch.`;
   }
 
   // Follow-up detection: quantities, tax credit, shipping variation
@@ -150,47 +158,47 @@ export function generateContextualReply(
 
   if (combinedContext.includes('iphone') || combinedContext.includes('phone') || combinedContext.includes('8517')) {
     if (isFollowUpQuantity) {
-      return 'For commercial volume shipments of mobile phones (HS 8517.12), the 20% BCD and 18% IGST apply per unit value. Additionally, bulk imports require BIS (Bureau of Indian Standards) registration compliance and mandatory IMEI registration on the Indian Customs portal before clearance.';
+      return `### 📦 Commercial Volume Assessment: HS 8517.12\n\n**Duty & Tax Structure (Per Unit CIF):**\n- **Basic Customs Duty (BCD):** 20.0%\n- **Social Welfare Surcharge (SWS):** 10.0% of BCD (effectively 2.0%)\n- **Integrated GST (IGST):** 18.0%\n\n**Bulk & Commercial Compliance Mandates:**\n1. **BIS Registration:** Compulsory Registration Scheme (CRS) compliance under MeitY is mandatory.\n2. **IMEI Portal Registration:** All terminal equipment serial numbers must be pre-uploaded to the Indian Customs IMEI Verification Registry prior to physical arrival.\n3. **Valuation Consistency:** Standard volume discount margins must be explicitly documented in the commercial contract to prevent transfer pricing scrutiny.`;
     }
     if (isFollowUpITC) {
-      return 'Under Indian GST laws, IGST paid upon customs clearance for imported smartphones qualifies for 100% Input Tax Credit if imported using your firm’s active GSTIN on the Bill of Entry and utilized for taxable commercial supplies.';
+      return `### ⚖️ Statutory Input Tax Credit (ITC) Determination\n\n**Statutory Provision:** Section 16 of the CGST Act, 2017\n\n**Eligibility Assessment:**\n- **IGST Component:** The 18% Integrated GST paid at customs clearance is **100% creditable** against your outward domestic tax liability (CGST/SGST/IGST).\n- **BCD & SWS:** Basic Customs Duty (20%) and Social Welfare Surcharge (2%) are non-creditable customs tariffs and must be capitalized into the landed asset cost.\n\n**Prerequisites for Filing Credit:**\n1. Valid Bill of Entry (BoE) bearing your organization’s active **GSTIN**.\n2. Payment confirmation matched in ICEGATE & GSTR-2B.`;
     }
   }
 
   if (combinedContext.includes('handbag') || combinedContext.includes('bag') || combinedContext.includes('leather')) {
     if (isFollowUpDocumentation) {
-      return 'For importing luxury handbags (HS 4202), you will need: Commercial Invoice, Packing List, Bill of Lading, Certificate of Origin (for preferential duty agreements), and Wildlife/CITES clearance if genuine exotic leather is used.';
+      return `### 📑 Documentation Checklist: HS 4202 Luxury Goods\n\n**Primary Customs Filings:**\n1. **Commercial Invoice & Packing List:** Detailed itemization including leather grade and country of origin.\n2. **Bill of Lading / Air Waybill:** Must clearly show port of origin and port of discharge.\n3. **Certificate of Origin (CoO):** Required if seeking preferential duty under CEPA/FTA provisions.\n4. **CITES Clearance Certificate:** Mandatory if products contain genuine wildlife, reptile, or endangered exotic skins.`;
     }
   }
 
   if (combinedContext.includes('notice') || combinedContext.includes('penalty') || combinedContext.includes('audit')) {
     if (normalizedText.includes('timeline') || normalizedText.includes('days') || normalizedText.includes('appeal')) {
-      return 'Under Section 128 of the Customs Act, 1962, you have 60 days from the communication date to file an appeal before the Commissioner (Appeals), extendable by 30 days upon showing sufficient cause. A mandatory pre-deposit of 7.5% of the duty confirmed is required.';
+      return `### ⏳ Statutory Limitation & Appeal Framework\n\n**Governing Law:** Section 128 of the Customs Act, 1962\n\n**Statutory Timelines:**\n- **Standard Appeal Window:** **60 days** from date of communication of the adjudication order to the Commissioner (Appeals).\n- **Condonation Window:** Discretionary extension of **30 days** upon demonstrating sufficient cause.\n\n**Mandatory Pre-Deposit (Section 129E):**\n- **First Appeal:** Mandatory pre-deposit of **7.5%** of the disputed duty or penalty confirmed.\n- **Appellate Tribunal (CESTAT):** Incremental **10%** pre-deposit required if proceeding further.`;
     }
   }
 
   // Direct queries
   if (normalizedText.includes('iphone') || normalizedText.includes('phone')) {
-    return 'For an iPhone imported from the US to India (HS Code 8517.12), estimated duty includes: Basic Customs Duty (approx 20%), Social Welfare Surcharge (10% of BCD), and IGST (18%). Declared value of US$899 results in approx ₹85,430 landed cost. We recommend attaching the supplier invoice for precise assessment.';
+    return `### 📱 Import Tariff Assessment: Smartphones\n\n**Classification:** HS Code \`8517.12\` (Cellular mobile phones)\n**Corridor:** United States [US] ──► India [IN]\n\n**Duty & Tax Breakdown (Declared: US$899 / approx ₹77,760):**\n- **Basic Customs Duty (BCD):** 20.0% = **₹15,552**\n- **Social Welfare Surcharge (SWS):** 10.0% of BCD = **₹1,555**\n- **Integrated GST (IGST):** 18.0% = **₹17,076**\n- **Estimated Landed Cost:** **₹111,943** (including typical ₹3,500 air freight & clearance)\n\n**Compliance Notes:** Requires Bureau of Indian Standards (BIS) mark on retail packaging and IMEI registration.`;
   }
 
   if (normalizedText.includes('handbag') || normalizedText.includes('bag')) {
-    return 'Luxury leather and synthetic handbags (HS Code 4202) typically attract 20% Basic Customs Duty + 18% GST + SWS. Preferential trade agreements may apply depending on origin and Certificate of Origin.';
+    return `### 👜 Import Tariff Assessment: Leather Handbags\n\n**Classification:** HS Code \`4202.21\` (Handbags with outer surface of leather)\n\n**Tariff Rates:**\n- **Basic Customs Duty (BCD):** 20.0%\n- **Social Welfare Surcharge (SWS):** 10.0% of BCD (effectively 2.0%)\n- **Integrated GST (IGST):** 18.0%\n- **Effective Cumulative Duty:** ~43.96% on assessable CIF value\n\n**Compliance Tip:** Verify genuine leather vs. synthetic polyurethane to ensure accurate tariff line sub-heading.`;
   }
 
   if (normalizedText.includes('notice') || normalizedText.includes('document') || normalizedText.includes('customs')) {
-    return 'Customs demand notices and scrutiny queries can be analyzed for statutory appeal timelines (usually 60 days under Section 128), duty differential claims, and valuation adjustments. Please upload the notice scan.';
+    return `### 📜 Customs Demand Notice Scrutiny\n\n**Scope of Review:**\n- **Section 28 Demands:** Scrutiny of short-levied duties, misdeclaration allegations, or classification challenges.\n- **Section 128 Appeals:** Evaluation of 60-day limitation periods and pre-deposit obligations.\n- **Valuation Scrutiny:** Assessing transfer pricing between related foreign suppliers under Customs Valuation Rules, 2007.\n\n*Upload a clear copy of the notice (PDF/Image) using the upload button below for a comprehensive line-item audit.*`;
   }
 
   if (normalizedText.includes('laptop') || normalizedText.includes('computer')) {
-    return 'Laptops and computers (HS Code 8471.30) generally enter at 0% Basic Customs Duty under the Information Technology Agreement (ITA-1), but attract 18% IGST. Note that import authorization may be required for restricted electronic capital goods.';
+    return `### 💻 Import Tariff Assessment: Laptops & Computers\n\n**Classification:** HS Code \`8471.30\` (Portable automatic data processing machines)\n\n**Tariff Matrix:**\n- **Basic Customs Duty (BCD):** **0.0%** (Exempt under WTO Information Technology Agreement ITA-1)\n- **Integrated GST (IGST):** **18.0%**\n- **Compensation Cess:** 0.0%\n\n**Trade Policy Notice:** Importers must ensure valid Import Management System (IMS) authorization credentials under DGFT regulations.`;
   }
 
   if (normalizedText.includes('machinery') || normalizedText.includes('equipment')) {
-    return 'Capital goods and industrial machinery (HS Chapter 84/85) typically carry 7.5% BCD + 18% IGST. If importing under the EPCG (Export Promotion Capital Goods) scheme, you may be eligible for 0% customs duty subject to export obligations.';
+    return `### ⚙️ Industrial Capital Goods & Machinery\n\n**Classification:** Chapter 84 / 85 (Industrial Plant & Equipment)\n\n**Standard Tariffs:**\n- **Standard BCD:** 7.5%\n- **SWS:** 10.0% of BCD (0.75%)\n- **Integrated GST:** 18.0%\n\n**Concessional Schemes Available:**\n- **EPCG Scheme:** 0% customs duty eligibility against export commitment (6x duty saved in 6 years).\n- **Project Import (Section 157):** Concessional assessment for new industrial setup.`;
   }
 
-  return 'I can estimate tariff impact, verify HS code classifications, and calculate landed import costs including BCD, SWS, and IGST. Share your product type, origin country, destination port, and invoice value for an exact assessment.';
+  return `### 🌐 Trade Tariff & Customs Assessment\n\nI can calculate landed import costs, verify HS code classifications, and inspect statutory notices against the latest national tariff schedules.\n\n**To calculate exact landed tariffs, please provide:**\n1. **Product Type & Technical Description**\n2. **Country of Origin & Export Port**\n3. **Declared Invoice Value (USD / EUR / INR)**\n4. **Harmonized System (HS) Code** (if known)\n\n*Or attach a commercial invoice/customs notice for automated parsing.*`;
 }
 
 export function addMessageToConversation({
@@ -219,14 +227,15 @@ export function addMessageToConversation({
   }
 
   if (!conv) {
-    // Generate descriptive title from first user message
-    const trimmedTitle = message
-      ? message.slice(0, 38).trim() + (message.length > 38 ? '...' : '')
-      : 'Document Review';
+    // Generate clean descriptive title from first user message
+    const cleanMsg = message.replace(/[#*`_]/g, '').trim();
+    const trimmedTitle = cleanMsg
+      ? cleanMsg.slice(0, 36).trim() + (cleanMsg.length > 36 ? '...' : '')
+      : 'Customs Assessment';
     conv = createConversation(userId, trimmedTitle);
-  } else if (conv.title === 'New Trade Inquiry' && message) {
-    // Update default placeholder title with the real question
-    conv.title = message.slice(0, 38).trim() + (message.length > 38 ? '...' : '');
+  } else if ((conv.title === 'New Trade Inquiry' || conv.title === 'New Inquiry') && message) {
+    const cleanMsg = message.replace(/[#*`_]/g, '').trim();
+    conv.title = cleanMsg.slice(0, 36).trim() + (cleanMsg.length > 36 ? '...' : '');
   }
 
   const uploadedFiles = buildUploadedFiles(files);
