@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { generateBotReply, initialMessages, quickPrompts } from '../data/chatData'
+import { generateBotReply, quickPrompts } from '../data/chatData'
 import ThemeToggle from '../components/ThemeToggle'
 
 const createLocalId = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 9)}`
@@ -12,8 +12,8 @@ function ChatPage({ user, token, onLogout }) {
 
   const [conversations, setConversations] = useState([])
   const [activeConversationId, setActiveConversationId] = useState('')
-  const [activeTitle, setActiveTitle] = useState('Customs & tariff guidance')
-  const [messages, setMessages] = useState(initialMessages)
+  const [activeTitle, setActiveTitle] = useState('New Inquiry')
+  const [messages, setMessages] = useState([])
   const [draft, setDraft] = useState('')
   const [selectedFiles, setSelectedFiles] = useState([])
   const [isSending, setIsSending] = useState(false)
@@ -75,17 +75,24 @@ function ChatPage({ user, token, onLogout }) {
 
         if (res.ok && isMounted) {
           const result = await res.json()
-          if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+          if (result.success && Array.isArray(result.data)) {
             setConversations(result.data)
 
-            // Select previously saved or first conversation
-            const savedConvId = localStorage.getItem('tariff_active_conv')
-            const toSelect = result.data.find((c) => c.id === savedConvId) || result.data[0]
+            if (result.data.length > 0) {
+              const savedConvId = localStorage.getItem('tariff_active_conv')
+              const toSelect = result.data.find((c) => c.id === savedConvId) || result.data[0]
 
-            setActiveConversationId(toSelect.id)
-            setActiveTitle(toSelect.title)
-            await loadConversationMessages(toSelect.id)
-            return
+              setActiveConversationId(toSelect.id)
+              setActiveTitle(toSelect.title)
+              await loadConversationMessages(toSelect.id)
+              return
+            } else {
+              // New user with no chats: start with clean slate
+              setActiveConversationId('')
+              setActiveTitle('New Inquiry')
+              setMessages([])
+              localStorage.removeItem('tariff_active_conv')
+            }
           }
         }
       } catch (err) {
@@ -110,51 +117,14 @@ function ChatPage({ user, token, onLogout }) {
     loadConversationMessages(conv.id)
   }
 
-  // Create a new blank chat session
-  const handleNewChat = async () => {
-    try {
-      const res = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${activeToken}`,
-        },
-        body: JSON.stringify({
-          title: 'New Trade Inquiry',
-        }),
-      })
-
-      if (res.ok) {
-        const result = await res.json()
-        if (result.success && result.data) {
-          const newConv = result.data
-          setConversations((prev) => [
-            {
-              id: newConv.id,
-              title: newConv.title,
-              lastMessage: 'Started new session',
-              messageCount: 1,
-              updatedAt: newConv.updatedAt,
-              createdAt: newConv.createdAt,
-            },
-            ...prev,
-          ])
-          setActiveConversationId(newConv.id)
-          setActiveTitle(newConv.title)
-          setMessages(newConv.messages)
-          localStorage.setItem('tariff_active_conv', newConv.id)
-          return
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to create new conversation on backend:', err)
-    }
-
-    // Local fallback
-    const localId = createLocalId('conv-local')
-    setActiveConversationId(localId)
-    setActiveTitle('New Trade Inquiry')
-    setMessages(initialMessages)
+  // Create a new clean chat session
+  const handleNewChat = () => {
+    setActiveConversationId('')
+    setActiveTitle('New Inquiry')
+    setMessages([])
+    setDraft('')
+    setSelectedFiles([])
+    localStorage.removeItem('tariff_active_conv')
   }
 
   // Delete a previous conversation
@@ -417,8 +387,29 @@ function ChatPage({ user, token, onLogout }) {
 
         <div className="chat-messages">
           {isLoadingHistory ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-              Loading conversation history...
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              Loading conversation telemetry...
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="chat-empty-state">
+              <div className="empty-state-badge">Calibration Console</div>
+              <h3>Empirical Customs & Tariff Engine</h3>
+              <p>
+                No active session loaded. Inquire about landed duties, verify statutory HS classifications,
+                or upload an import notice below to begin.
+              </p>
+              <div className="empty-prompt-chips">
+                {quickPrompts.slice(0, 3).map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className="empty-prompt-chip"
+                    onClick={() => setDraft(prompt)}
+                  >
+                    <span>↳</span> {prompt}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             messages.map((message) => (
