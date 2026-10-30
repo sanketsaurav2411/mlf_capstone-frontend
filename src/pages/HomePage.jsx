@@ -18,7 +18,7 @@ const features = [
   },
 ]
 
-function HomePage() {
+function HomePage({ isLoggedIn }) {
   return (
     <div className="page-shell">
       <header className="topbar">
@@ -31,8 +31,8 @@ function HomePage() {
         </div>
 
         <nav className="nav-actions">
-          <Link to="/login" className="primary-button small-button">
-            Login to Chat
+          <Link to={isLoggedIn ? "/chat" : "/login"} className="primary-button small-button">
+            {isLoggedIn ? "Open Chat" : "Login to Chat"}
           </Link>
         </nav>
       </header>
@@ -47,8 +47,8 @@ function HomePage() {
           </p>
 
           <div className="action-row">
-            <Link to="/login" className="primary-button">
-              Login to Chat
+            <Link to={isLoggedIn ? "/chat" : "/login"} className="primary-button">
+              {isLoggedIn ? "Open Chat Dashboard" : "Login to Chat"}
             </Link>
             <Link to="/request-demo" className="secondary-button">
               Request Demo

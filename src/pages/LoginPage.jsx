@@ -1,16 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-const VALID_EMAIL = 'business@tariff.ai'
-const VALID_PASSWORD = 'password123'
-
-function LoginPage({ onLogin }) {
+function LoginPage({ onLogin, isLoggedIn }) {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: 'business@tariff.ai',
     password: 'password123',
   })
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/chat', { replace: true })
+    }
+  }, [isLoggedIn, navigate])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -21,21 +25,43 @@ function LoginPage({ onLogin }) {
     }
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-
-    const isValid =
-      formData.email.trim().toLowerCase() === VALID_EMAIL &&
-      formData.password === VALID_PASSWORD
-
-    if (!isValid) {
-      setError('Invalid email or password. Please try again.')
-      return
-    }
-
+    setIsLoading(true)
     setError('')
-    onLogin(formData)
-    navigate('/chat')
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        if (result.details && Array.isArray(result.details)) {
+          const detailMessages = result.details.map((d) => d.message).join(', ')
+          setError(detailMessages || result.message || 'Login failed')
+        } else {
+          setError(result.message || 'Invalid email or password. Please try again.')
+        }
+        return
+      }
+
+      setError('')
+      onLogin(result.data)
+      navigate('/chat')
+    } catch {
+      setError('Unable to reach server. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -63,6 +89,7 @@ function LoginPage({ onLogin }) {
               value={formData.email}
               onChange={handleChange}
               placeholder="you@example.com"
+              required
               aria-invalid={Boolean(error)}
             />
           </label>
@@ -75,6 +102,7 @@ function LoginPage({ onLogin }) {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter your password"
+              required
               aria-invalid={Boolean(error)}
             />
           </label>
@@ -84,18 +112,18 @@ function LoginPage({ onLogin }) {
               <input type="checkbox" defaultChecked />
               <span>Keep me signed in</span>
             </label>
-            <a href="#">Forgot password?</a>
+            <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Secure JWT session</span>
           </div>
 
-          <button type="submit" className="primary-button full-width">
-            Login to dashboard
+          <button type="submit" className="primary-button full-width" disabled={isLoading}>
+            {isLoading ? 'Verifying...' : 'Login to dashboard'}
           </button>
         </form>
 
         <div className="demo-box">
           <strong>Demo credentials</strong>
-          <span>Email: business@tariff.ai</span>
-          <span>Password: password123</span>
+          <span>Email: <code>business@tariff.ai</code> | Password: <code>password123</code></span>
+          <span>Email: <code>demo@example.com</code> | Password: <code>Demo@123</code></span>
         </div>
 
         <p className="login-footer">
@@ -107,3 +135,4 @@ function LoginPage({ onLogin }) {
 }
 
 export default LoginPage
+

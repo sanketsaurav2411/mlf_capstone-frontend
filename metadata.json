@@ -1,0 +1,8 @@
+{
+  "name": "TariffFlow AI",
+  "description": "Interactive trade intelligence and customs duty guidance web application.",
+  "prompt": "TariffFlow AI helps businesses ask trade and customs questions quickly, review notice documents, and understand tax exposure.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
